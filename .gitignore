@@ -2,3 +2,5 @@
 travel_plans/
 __pycache__/
 *.pyc
+.vscode/
+
