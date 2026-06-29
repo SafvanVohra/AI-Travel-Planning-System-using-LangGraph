@@ -1,8 +1,7 @@
 '''
 # pip install langgraph langchain langchain-openai langchain-groq langchain-community langchain-tavily psycopg[binary] psycopg_pool python-dotenv tavily-python pip install requests streamlit
 
-# install PostgresSql and create database
-CREATE DATABASE langgraph_memory;  ( or open pgadmin4 and create database there )
+# Connected to Supabase PostgreSQL database
 '''
 # LangGraph Multi-Agent Travel Booking System with Long-Term Memory
 
