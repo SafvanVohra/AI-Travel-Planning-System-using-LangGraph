@@ -140,15 +140,24 @@ graph.add_edge("final_agent", END)
 
 
 # Persistent connection pool so both CLI and Streamlit can share the compiled app
-pool = ConnectionPool(
-    conninfo=DATABASE_URL,
-    max_size=10,
-    kwargs={"autocommit": True, "row_factory": dict_row}
-)
-checkpointer = PostgresSaver(pool)
-checkpointer.setup()
-
-app = graph.compile(checkpointer=checkpointer)
+try:
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL is not set in environment variables. Make sure it is defined in your .env or Render Environment settings.")
+    
+    pool = ConnectionPool(
+        conninfo=DATABASE_URL,
+        max_size=10,
+        kwargs={"autocommit": True, "row_factory": dict_row}
+    )
+    checkpointer = PostgresSaver(pool)
+    checkpointer.setup()
+    app = graph.compile(checkpointer=checkpointer)
+except Exception as e:
+    import sys
+    print(f"\nCRITICAL DATABASE CONFIGURATION ERROR: {e}\n", file=sys.stderr)
+    raise RuntimeError(
+        f"Failed to initialize database connection. Please check your DATABASE_URL environment variable. Error: {e}"
+    ) from e
 
 
 if __name__ == "__main__":
