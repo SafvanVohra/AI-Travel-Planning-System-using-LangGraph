@@ -13,6 +13,8 @@ from typing import TypedDict, Annotated
 import operator
 
 import psycopg
+from psycopg_pool import ConnectionPool
+from psycopg.rows import dict_row
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.postgres import PostgresSaver
 from langchain_core.messages import (
@@ -138,9 +140,13 @@ graph.add_edge("itinerary_agent", "final_agent")
 graph.add_edge("final_agent", END)
 
 
-# Persistent connection so both CLI and Streamlit can share the compiled app
-_conn = psycopg.connect(DATABASE_URL, autocommit=True)
-checkpointer = PostgresSaver(_conn)
+# Persistent connection pool so both CLI and Streamlit can share the compiled app
+pool = ConnectionPool(
+    conninfo=DATABASE_URL,
+    max_size=10,
+    kwargs={"autocommit": True, "row_factory": dict_row}
+)
+checkpointer = PostgresSaver(pool)
 checkpointer.setup()
 
 app = graph.compile(checkpointer=checkpointer)
